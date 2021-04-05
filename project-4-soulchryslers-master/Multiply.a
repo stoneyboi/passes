@@ -1,0 +1,37 @@
+####################################################################
+#
+# This program does simple multiplication.
+# It will (partially) test bne and j; 
+# 	however, you will want verify that your branch and jump 
+#	instructions work before running this test.
+# 	(If they don't work, this script will probably enter 
+#	an infinite loop.)
+#
+###################################################################
+	
+# Set up registers with the two multipliers and the product
+
+	addi $s0, $zero, 15	# $s0 = 15	first multiplier
+	addi $s1, $zero, 10	# $s1 = 10	second multiplier
+	and  $s2, $zero, $zero	# $s2 = 0 	product
+
+# BRANCH if the first multiplier is 0, then there is nothing to do
+
+	beq  $s0, $zero, END	# if $s0 == 0, branch to 'END'
+
+# ADD the second multipler ($s1) to the product ($s2),
+# then decrement the first multiplier by 1, until it reaches 0.
+
+TOP:	add  $s2, $s2, $s1      # $s2 = $s2 + $s1
+	addi $s0, $s0, -1       # decrement $s0
+
+	# Once the first multipler reaches 0, we're done.
+	beq  $s0, $zero, END	# check if multiplier == 0
+	j    TOP		# loop if not
+
+# We're done.  The extra lines are just to make sure the final jump
+# goes to the right place.
+
+END:   addi $s3, $s3, 70	# i8
+       addi $s4, $s4, 80	# i9
+       addi $s5, $s5, 90	# i10  

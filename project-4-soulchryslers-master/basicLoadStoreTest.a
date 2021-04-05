@@ -1,0 +1,83 @@
+############################################################################
+# 
+# A simple (and incomplete) demonstration of one you might test lw and
+#  sw.  (Make sure lui and other basic arithmetic works first!)
+#
+# When writing your own tests, make sure you test non-zero offsets.
+# Also, make sure your test will detect any timing errors (i.e., a
+# clock cycle that is too short).
+#
+###########################################################################
+
+	.data
+# Array of chars for testing LW instruction
+string: .asciiz "Slow down, Big Time Rush!"
+
+# Array of integers for testing LW instruction
+intArray: .word 6 7 6 7 4 17 13 8 7 1 1 1
+
+
+	.text
+	
+###########################################################################
+#
+#	Testing LOAD WORD instruction
+#
+###########################################################################
+
+# Testing lw with array of characters
+la $a0, string			# loads array 'string' into $a0
+
+# Tests loading first word of array "string"
+lw $t0, 0($a0)			# loads ASCII values of first four chars
+addi $t1, $zero, 0x776f6c53	# $t1 = 0x776f6c53, ASCII of wolS to $t0
+seq $t2, $t0, $t1		# $t2 == 1, if $t0 correct value loaded
+
+# Tests loading last word without terminating char of "string"
+lw $t0, 20($a0)			# loads ASCII values of hsuR to $t0
+addi $t1, $zero, 0x68737552	# $t1 = 0x68737552, ASCII of "hsuR"
+seq $t2, $t0, $t1		# $t2 will be 1 if $t0 correct value loaded
+
+# Tests loading last word of "string"
+la $t0, 24($a0)			# loads ASCII values of last word to $t0
+addi $t1, $zero, 0x00000021	# $t1 = 0x00000021, ASCII of \0 \0 \0 !
+seq $t2, $t0, $t1		# $t2 will be 1 if $t0 correct value loaded
+
+# Testing lw with array of integers
+la $a0, intArray		# loads array 'intArray' into $a0
+
+# Tests loading first int
+lw $t0, 0($a0)			# loads first element of intArray to $t0
+subi $t1, $t0, 6		# $t1 == 0, if correct value loaded
+
+# Tests loading some element in the middle
+lw $t0, 20($a0)			# loads fifth element of intArray to $t0
+subi $t1, $t0, 17		# $t0 == 0, if correct value loaded
+
+
+###########################################################################
+#
+#	Testing STORE WORD instructions
+#
+###########################################################################
+
+la $a0, intArray	# loads intArray to $a0
+addi $t0, $zero, 2
+
+# Changing first stored element
+lw $t1, 0($a0)		# $t1 == 6 
+sw $t0, 0($a0)		# changes first int to 2
+lw $t2, 0($a0)		# $t2 == 2
+seq $t3, $t1, $t2	# $t3 should be 0, 6 != 2
+
+# Changing some element in the middle of array
+lw $t1, 20($a0)		# $t1 == 17
+sw $t0, 20($a0)		# changes fifth element to 2
+lw $t2, 20($a0)		# $t2 == 2
+seq $t3, $t1, $t2	# $t3 should be 0, 17 != 2
+
+# Adding an element to the end of the array
+lw $t1, 52($a0)		# $t1 == '\0'
+sw $t0, 52($a0)		# adds 2 as 13th element
+lw $t2, 52($a0)		# $t2 == 2
+seq $t3, $t1, $t2	# $t3 should be 0, '\0' != 2

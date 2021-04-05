@@ -1,0 +1,14 @@
+{
+  "tests": [
+    {
+      "name": "Single Cycle Tests",
+      "setup": "curl \"https://www.cis.gvsu.edu/~kurmasz/Autograder/singleCycleAutograde.tar.bz2\" | tar xvj",
+      "run": "bash runTests",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": null
+    }
+  ]
+}

@@ -1,0 +1,277 @@
+############################################################################
+# 
+# A simple (and incomplete) demonstration of one you might test basic
+# I-type and R-type instructions.
+#
+# When constructing a complete test suite, be sure to
+# 
+# (1) Test all operations
+# (2) Test operations with several different inputs. 
+# (3) Choose inputs carefully.  For example, suppose you switched
+#     control wires so that addi instructions actually executed as ori
+#     instructions.  The line addi "$3, $3, 0", will work correctly in
+#     spite of the mistake.
+#
+###########################################################################
+
+
+.text
+
+###########################################################################
+#	
+#	Testing ADD and ADD IMMEDIATE instructions
+#
+###########################################################################
+
+# Testing with positive numbers
+addi $t0, $zero, 3	# $t0 = 3
+addi $t1, $zero, 5	# $t1 = 8
+add  $t2, $t0, $t1	# $t2 = 16
+
+# Testing with negative numbers 
+addi $t0, $zero, -8	# $t0 = -8
+addi $t1, $zero, -2	# $t1 = -2
+add $t2, $t0, $t1	# $t2 = -10
+
+# Testing with positive and negative numbers
+addi $t0, $zero, -3	# $t0 = -3
+addi $t1, $zero, 24	# $t1 = 24
+add $t2, $t0, $t1	# $t2 = 21
+
+###########################################################################
+#
+#	Testing AND and ANDI instructions
+#
+###########################################################################
+
+addi $t0, $zero, 1	# $t0 = Logical True
+addi $t1, $zero, 0	# $t1 = Logical False
+
+# Testing with two true values
+andi $t2, $t0, 1	# $t2 = True
+and $t3, $t0, $t0	# $t3 = True
+
+# Testing with one false value
+addi $t2, $t1, 1	# $t2 = False
+and $t3, $t0, $t1	# $t3 = False
+
+# Testing with two false values
+andi $t2, $t1, 0	# $t2 = False
+and $t3, $t1, $zero	# $t3 = False
+
+###########################################################################
+#
+#	Testing BEQ instruction	
+#
+###########################################################################
+
+addi $t0, $zero, 19	# $t0 = 19
+addi $t1, $zero, 19	# $t1 = 19
+addi $t2, $zero, 7	# $t2 = 7
+
+# Tests BEQ with equal values
+beq $t0, $t1, next	# Branch to 'next' if 19 == 19
+j notNext		# Else jump to 'notNext'
+
+# Tests BEQ with unequal values first time through
+# Tests BEQ with equal values second time through
+next:
+	beq $t0, $t2, next	# Branch back to 'next' if $t0 == $t2, else move on
+	beq $t1, $t2, end	# Branch to 'end' if $t1 == $t2, else move on
+	
+# Changes values and tests again
+notNext:
+	move $t1, $t2		# Sets $t1 equal to $t2 = 7
+	beq $t1, $t2, next	# Branches to 'next' if $t1 == $t2
+
+# Moves on to next testing block
+end:
+
+
+###########################################################################
+#
+#	Testing HALT instruction
+#
+###########################################################################
+
+
+
+###########################################################################
+#
+#	Testing JUMP instruction
+#
+###########################################################################
+
+addi $t0, $zero, 1964	# $t0 = 1964
+j jumpTo		# Jumps to 'jumpTo' unconditionally
+addi $t0, $zero, 2000	# $t0 = 2000, if jump is not functional
+
+# Tests JUMP instruction
+jumpTo:
+	seq $t1, $t0, 1964	# $t1 = 1, if jump is functional
+
+###########################################################################
+#
+#	Testing LOAD UPPER IMMEDIATE instruction
+#
+###########################################################################
+
+li $t0, 0x10010000
+lui $t1, 4097			# loads 0x1001 to upper 16 bits
+seq $t2, $t0, $t1		# $t2 should be 1
+
+li $t0, 0x00030000
+lui $t1, 3			# loads 0x0003 to upper 16 bits
+seq $t2, $t0, $t1		# $t2 should be 1
+
+li $t0, 0x021c0000
+lui $t1, 540			# loads 0x021c to upper 16 bits
+seq $t2, $t0, $t1		# $t2 should be 1
+
+###########################################################################
+#
+#	Testing NOR instruction
+#
+###########################################################################
+
+# Testing with two diff values (1 & 0)
+li $t1, 1
+li $t2, 0
+nor $t3, $t2, $t1
+
+# Testing with values to get True (0 & 0)
+li $t1, 0
+nor $t3, $t2, $t1
+
+# Testing with 1s to get False (1 & 1)
+li $t1, 1
+li $t2, 1
+nor $t3, $t2, $t1
+
+###########################################################################
+#
+#	Testing OR and OR IMMEDIATE instructions
+#
+###########################################################################
+
+######## Testing OR instruction
+
+#Testing with two diff values (1 & 0)
+li $t1, 1
+li $t2, 0
+or $t3, $t2, $t1
+
+#Testing with values to get True (1 & 1)
+li $t2, 1
+or $t3, $t2, $t1
+
+#Testing with 0s to get False (0 & 0)
+li $t1, 0
+li $t2, 0
+or $t3, $t2, $t1
+
+
+######## Testing ORI instruction
+
+# Testing with two diff values ( 1 & 0)
+li $t2, 0
+ori $t3, $t2, 1
+
+#Testing with values to get True (1 & 1)
+li $t2, 1
+ori $t3, $t2, 1
+
+#Testing with 0s to get False (0 & 0)
+li $t2, 0
+ori $t3, $t2, 0
+
+###########################################################################
+#
+#	Testing SET LESS THAN and 
+#	SET LESS THAN IMMEDIATE instructions
+#
+###########################################################################
+
+# Testing with two negative values
+addi $t0, $zero, -3
+addi $t1, $zero, -7
+slt $t2, $t0, $t1	# $t2 == 0, if SLT is functional
+slt $t3, $t1, $t0	# $t3 == 1, if SLT is functional
+slt $t6, $t0, $t0	# $t6 == 0, if SLT is functional
+slti $t6, $t0, -1	# $t6 == 1, if SLTI is functional
+
+# Testing with positive and negative values
+addi $t4, $zero, 11
+slt $t2, $t0, $t4	# $t2 == 1, if SLT is functional
+slt $t3, $t4, $t1	# $t3 == 0, if SLT is functional
+slti $t5, $t4, 12	# $t5 == 1, if SLTI is functional
+
+# Testing with two positive values
+addi $t5, $zero, 78
+slt $t2, $t5, $t4	# $t2 == 0, if SLT is functional
+slt $t3, $t4, $t5	# $t3 == 1, if SLT is functional
+slt $t6, $t4, $t4	# $t6 == 0, if SLT is functional
+slti $t6, $t5, 100	# $t6 == 1, if SLTI is functional
+
+###########################################################################
+#
+#	Testing SUBTRACT instructions
+#
+###########################################################################
+
+addi $t0, $zero, 0
+addi $t1, $zero, -88
+
+# Testing with negative value and zero
+sub $t2, $t0, $t1
+seq $t3, $t2, 88	# $t3 should equal 1
+
+sub $t2, $t1, $t0
+seq $t3, $t2, -88	# $t3 should equal 1
+
+# Testing with positive value and zero
+addi $t1, $zero, 64
+sub $t2, $t0, $t1
+seq $t3, $t2, -64	# $t3 should equal 1
+
+sub $t2, $t1, $t0
+seq $t3, $t2, 64	# $t3 should equal 1
+
+# Testing with two positve values
+addi $t0, $zero, 3
+sub $t2, $t1, $t0
+seq $t3, $t2, 61	# $t3 should equal 1
+
+sub $t2, $t0, $t1
+seq $t3, $t2, -61	# $t3 should equal 1
+
+# Testing with two negative values
+addi $t0, $zero, -10
+addi $t1, $zero, -2
+sub $t2, $t0, $t1
+seq $t3, $t2, -8	# $t3 should equal 1
+
+sub $t2, $t1, $t0
+seq $t3, $t2, 8		# $t3 should equal 1
+
+# Testing with positive and negative values
+addi $t0, $zero, 3
+sub $t2, $t0, $t1
+seq $t3, $t2, 5		# $t3 should equal 1
+
+sub $t2, $t1, $t0
+seq $t3, $t2, -5	# $t3 should equal 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+

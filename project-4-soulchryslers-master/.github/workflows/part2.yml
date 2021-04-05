@@ -1,0 +1,16 @@
+    name: Part 2 workflow
+
+    on:
+      workflow_dispatch:
+      push:
+        tags:
+          - checkMe*
+
+    jobs:
+      build:
+        name: Autograding
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v2
+          - run: curl https://www.cis.gvsu.edu/~kurmasz/Autograder/singleCycleAutograde.tar.bz2 | tar xvj
+          - run: bash runTests ext
